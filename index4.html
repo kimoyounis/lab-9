@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>قائمة المهام المتقدمة</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 600px;
+            padding: 30px;
+            margin-top: 40px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #5d5dff;
+            margin-bottom: 10px;
+            font-size: 2.2rem;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #777;
+            margin-bottom: 30px;
+            font-size: 1rem;
+        }
+
+        .input-section {
+            display: flex;
+            margin-bottom: 25px;
+            gap: 10px;
+        }
+
+        #taskInput {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        #taskInput:focus {
+            border-color: #5d5dff;
+            outline: none;
+        }
+
+        #addTaskBtn {
+            background: #5d5dff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        #addTaskBtn:hover {
+            background: #4a4aff;
+            transform: translateY(-2px);
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .filter-btn {
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filter-btn.active {
+            background: #5d5dff;
+            color: white;
+            border-color: #5d5dff;
+        }
+
+        .sort-options {
+            display: flex;
+            gap: 10px;
+        }
+
+        select {
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding: 10px 0;
+            border-top: 1px solid #eee;
+            border-bottom: 1px solid #eee;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .task-list {
+            list-style: none;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            border-left: 4px solid #5d5dff;
+            transition: all 0.3s ease;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .task-item.completed {
+            background: #f0f0f0;
+            border-left-color: #4CAF50;
+            opacity: 0.8;
+        }
+
+        .task-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .task-text {
+            font-size: 1rem;
+            margin-bottom: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .task-item.completed .task-text {
+            text-decoration: line-through;
+            color: #888;
+        }
+
+        .task-time {
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .task-actions button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: transform 0.2s;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .task-actions button:hover {
+            transform: scale(1.2);
+        }
+
+        .complete-btn {
+            color: #4CAF50;
+        }
+
+        .complete-btn:hover {
+            background: rgba(76, 175, 80, 0.1);
+        }
+
+        .edit-btn {
+            color: #FF9800;
+        }
+
+        .edit-btn:hover {
+            background: rgba(255, 152, 0, 0.1);
+        }
+
+        .delete-btn {
+            color: #f44336;
+        }
+
+        .delete-btn:hover {
+            background: rgba(244, 67, 54, 0.1);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #888;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: #ddd;
+        }
+
+        .edit-input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #5d5dff;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            .filter-buttons, .sort-options {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>قائمة المهام</h1>
+        <p class="subtitle">نظّم حياتك بمهام منظمة</p>
+        
+        <div class="input-section">
+            <input type="text" id="taskInput" placeholder="أضف مهمة جديدة...">
+            <button id="addTaskBtn">إضافة</button>
+        </div>
+        
+        <div class="controls">
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-filter="all">الكل</button>
+                <button class="filter-btn" data-filter="active">غير المكتملة</button>
+                <button class="filter-btn" data-filter="completed">المكتملة</button>
+            </div>
+            
+            <div class="sort-options">
+                <select id="sortSelect">
+                    <option value="newest">الأحدث أولاً</option>
+                    <option value="oldest">الأقدم أولاً</option>
+                    <option value="alphabetical">أبجديًا</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="stats">
+            <span id="totalTasks">المهام الكلية: 0</span>
+            <span id="completedTasks">المكتملة: 0</span>
+            <span id="pendingTasks">المتبقية: 0</span>
+        </div>
+        
+        <ul class="task-list" id="taskList">
+            <!-- سيتم إضافة المهام هنا ديناميكيًا -->
+        </ul>
+    </div>
+
+    <script>
+        // نموذج MVC لقائمة المهام
+        class Task {
+            constructor(id, text, completed = false, createdAt = new Date()) {
+                this.id = id;
+                this.text = text;
+                this.completed = completed;
+                this.createdAt = createdAt;
+            }
+            
+            toggle() {
+                this.completed = !this.completed;
+            }
+            
+            updateText(newText) {
+                this.text = newText;
+            }
+        }
+
+        class TaskModel {
+            constructor() {
+                this.tasks = this.loadFromStorage();
+                this.currentFilter = 'all';
+                this.currentSort = 'newest';
+            }
+            
+            // إضافة مهمة جديدة
+            addTask(text) {
+                const id = Date.now().toString();
+                const newTask = new Task(id, text);
+                this.tasks.push(newTask);
+                this.saveToStorage();
+                return newTask;
+            }
+            
+            // حذف مهمة
+            deleteTask(id) {
+                this.tasks = this.tasks.filter(task => task.id !== id);
+                this.saveToStorage();
+            }
+            
+            // تبديل حالة المهمة
+            toggleTask(id) {
+                const task = this.tasks.find(task => task.id === id);
+                if (task) {
+                    task.toggle();
+                    this.saveToStorage();
+                }
+            }
+            
+            // تعديل نص المهمة
+            editTask(id, newText) {
+                const task = this.tasks.find(task => task.id === id);
+                if (task && newText.trim() !== '') {
+                    task.updateText(newText.trim());
+                    this.saveToStorage();
+                }
+            }
+            
+            // الحصول على المهام بناءً على التصفية والترتيب
+            getTasks() {
+                let filteredTasks = [...this.tasks];
+                
+                // التصفية
+                if (this.currentFilter === 'active') {
+                    filteredTasks = filteredTasks.filter(task => !task.completed);
+                } else if (this.currentFilter === 'completed') {
+                    filteredTasks = filteredTasks.filter(task => task.completed);
+                }
+                
+                // الترتيب
+                if (this.currentSort === 'newest') {
+                    filteredTasks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                } else if (this.currentSort === 'oldest') {
+                    filteredTasks.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+                } else if (this.currentSort === 'alphabetical') {
+                    filteredTasks.sort((a, b) => a.text.localeCompare(b.text));
+                }
+                
+                return filteredTasks;
+            }
+            
+            // تحديث التصفية
+            setFilter(filter) {
+                this.currentFilter = filter;
+            }
+            
+            // تحديث الترتيب
+            setSort(sort) {
+                this.currentSort = sort;
+            }
+            
+            // الحصول على الإحصائيات
+            getStats() {
+                const total = this.tasks.length;
+                const completed = this.tasks.filter(task => task.completed).length;
+                const pending = total - completed;
+                
+                return { total, completed, pending };
+            }
+            
+            // الحفظ في localStorage
+            saveToStorage() {
+                localStorage.setItem('tasks', JSON.stringify(this.tasks));
+            }
+            
+            // التحميل من localStorage
+            loadFromStorage() {
+                const storedTasks = localStorage.getItem('tasks');
+                if (storedTasks) {
+                    const tasksData = JSON.parse(storedTasks);
+                    return tasksData.map(taskData => 
+                        new Task(
+                            taskData.id, 
+                            taskData.text, 
+                            taskData.completed, 
+                            new Date(taskData.createdAt)
+                        )
+                    );
+                }
+                return [];
+            }
+        }
+
+        class TaskView {
+            constructor() {
+                this.taskInput = document.getElementById('taskInput');
+                this.addTaskBtn = document.getElementById('addTaskBtn');
+                this.taskList = document.getElementById('taskList');
+                this.filterBtns = document.querySelectorAll('.filter-btn');
+                this.sortSelect = document.getElementById('sortSelect');
+                this.totalTasksEl = document.getElementById('totalTasks');
+                this.completedTasksEl = document.getElementById('completedTasks');
+                this.pendingTasksEl = document.getElementById('pendingTasks');
+            }
+            
+            // عرض المهام
+            renderTasks(tasks) {
+                if (tasks.length === 0) {
+                    this.taskList.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-clipboard-list"></i>
+                            <p>لا توجد مهام لعرضها</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                this.taskList.innerHTML = tasks.map(task => `
+                    <li class="task-item ${task.completed ? 'completed' : ''}" data-id="${task.id}">
+                        <div class="task-content">
+                            <span class="task-text">${task.text}</span>
+                            <span class="task-time">${this.formatDate(task.createdAt)}</span>
+                        </div>
+                        <div class="task-actions">
+                            <button class="complete-btn" title="${task.completed ? 'إلغاء الإكمال' : 'إكمال'}">
+                                <i class="fas fa-${task.completed ? 'undo' : 'check'}"></i>
+                            </button>
+                            <button class="edit-btn" title="تعديل">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="delete-btn" title="حذف">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </li>
+                `).join('');
+            }
+            
+            // عرض الإحصائيات
+            renderStats(stats) {
+                this.totalTasksEl.textContent = `المهام الكلية: ${stats.total}`;
+                this.completedTasksEl.textContent = `المكتملة: ${stats.completed}`;
+                this.pendingTasksEl.textContent = `المتبقية: ${stats.pending}`;
+            }
+            
+            // تحديث أزرار التصفية
+            updateFilterButtons(activeFilter) {
+                this.filterBtns.forEach(btn => {
+                    if (btn.dataset.filter === activeFilter) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+            }
+            
+            // تنسيق التاريخ
+            formatDate(date) {
+                const now = new Date();
+                const taskDate = new Date(date);
+                const diffMs = now - taskDate;
+                const diffMins = Math.floor(diffMs / (1000 * 60));
+                const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+                const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+                
+                if (diffMins < 1) return 'الآن';
+                if (diffMins < 60) return `منذ ${diffMins} دقيقة`;
+                if (diffHours < 24) return `منذ ${diffHours} ساعة`;
+                if (diffDays === 1) return 'منذ يوم';
+                if (diffDays < 7) return `منذ ${diffDays} أيام`;
+                
+                return taskDate.toLocaleDateString('ar-EG');
+            }
+            
+            // تفعيل وضع التعديل
+            activateEditMode(taskElement, currentText) {
+                const taskContent = taskElement.querySelector('.task-content');
+                const taskText = taskElement.querySelector('.task-text');
+                
+                taskText.style.display = 'none';
+                
+                const editInput = document.createElement('input');
+                editInput.type = 'text';
+                editInput.className = 'edit-input';
+                editInput.value = currentText;
+                
+                taskContent.appendChild(editInput);
+                editInput.focus();
+                
+                const saveEdit = () => {
+                    const newText = editInput.value.trim();
+                    if (newText) {
+                        taskText.textContent = newText;
+                    }
+                    taskText.style.display = 'block';
+                    editInput.remove();
+                    
+                    // إزالة مستمعي الأحداث
+                    editInput.removeEventListener('blur', saveEdit);
+                    editInput.removeEventListener('keypress', handleKeyPress);
+                    
+                    return newText;
+                };
+                
+                const handleKeyPress = (e) => {
+                    if (e.key === 'Enter') {
+                        saveEdit();
+                    }
+                };
+                
+                editInput.addEventListener('blur', saveEdit);
+                editInput.addEventListener('keypress', handleKeyPress);
+                
+                return new Promise(resolve => {
+                    const checkForSave = () => {
+                        if (!editInput.parentNode) {
+                            resolve(taskText.textContent);
+                        } else {
+                            setTimeout(checkForSave, 100);
+                        }
+                    };
+                    checkForSave();
+                });
+            }
+            
+            // إعادة تعيين حقل الإدخال
+            clearInput() {
+                this.taskInput.value = '';
+            }
+            
+            // الحصول على نص الإدخال
+            getInputText() {
+                return this.taskInput.value.trim();
+            }
+            
+            // ربط الأحداث
+            bindAddTask(handler) {
+                this.addTaskBtn.addEventListener('click', handler);
+                this.taskInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') handler();
+                });
+            }
+            
+            bindFilterTasks(handler) {
+                this.filterBtns.forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        handler(e.target.dataset.filter);
+                    });
+                });
+            }
+            
+            bindSortTasks(handler) {
+                this.sortSelect.addEventListener('change', (e) => {
+                    handler(e.target.value);
+                });
+            }
+            
+            bindToggleTask(handler) {
+                this.taskList.addEventListener('click', (e) => {
+                    if (e.target.closest('.complete-btn')) {
+                        const taskElement = e.target.closest('.task-item');
+                        handler(taskElement.dataset.id);
+                    }
+                });
+            }
+            
+            bindDeleteTask(handler) {
+                this.taskList.addEventListener('click', (e) => {
+                    if (e.target.closest('.delete-btn')) {
+                        const taskElement = e.target.closest('.task-item');
+                        // تأثير الحذف
+                        taskElement.style.transform = 'translateX(100%)';
+                        taskElement.style.opacity = '0';
+                        setTimeout(() => {
+                            handler(taskElement.dataset.id);
+                        }, 300);
+                    }
+                });
+            }
+            
+            bindEditTask(handler) {
+                this.taskList.addEventListener('click', async (e) => {
+                    if (e.target.closest('.edit-btn')) {
+                        const taskElement = e.target.closest('.task-item');
+                        const taskId = taskElement.dataset.id;
+                        const currentText = taskElement.querySelector('.task-text').textContent;
+                        
+                        const newText = await this.activateEditMode(taskElement, currentText);
+                        if (newText && newText !== currentText) {
+                            handler(taskId, newText);
+                        }
+                    }
+                });
+            }
+        }
+
+        class TaskController {
+            constructor(model, view) {
+                this.model = model;
+                this.view = view;
+                
+                // ربط الأحداث
+                this.view.bindAddTask(this.handleAddTask.bind(this));
+                this.view.bindFilterTasks(this.handleFilterTasks.bind(this));
+                this.view.bindSortTasks(this.handleSortTasks.bind(this));
+                this.view.bindToggleTask(this.handleToggleTask.bind(this));
+                this.view.bindDeleteTask(this.handleDeleteTask.bind(this));
+                this.view.bindEditTask(this.handleEditTask.bind(this));
+                
+                // التهيئة الأولية
+                this.updateView();
+            }
+            
+            // إضافة مهمة
+            handleAddTask() {
+                const text = this.view.getInputText();
+                if (text) {
+                    this.model.addTask(text);
+                    this.view.clearInput();
+                    this.updateView();
+                }
+            }
+            
+            // تصفية المهام
+            handleFilterTasks(filter) {
+                this.model.setFilter(filter);
+                this.view.updateFilterButtons(filter);
+                this.updateView();
+            }
+            
+            // ترتيب المهام
+            handleSortTasks(sort) {
+                this.model.setSort(sort);
+                this.updateView();
+            }
+            
+            // تبديل حالة المهمة
+            handleToggleTask(id) {
+                this.model.toggleTask(id);
+                this.updateView();
+            }
+            
+            // حذف المهمة
+            handleDeleteTask(id) {
+                this.model.deleteTask(id);
+                this.updateView();
+            }
+            
+            // تعديل المهمة
+            handleEditTask(id, newText) {
+                this.model.editTask(id, newText);
+                this.updateView();
+            }
+            
+            // تحديث العرض
+            updateView() {
+                const tasks = this.model.getTasks();
+                const stats = this.model.getStats();
+                
+                this.view.renderTasks(tasks);
+                this.view.renderStats(stats);
+            }
+        }
+
+        // تهيئة التطبيق
+        document.addEventListener('DOMContentLoaded', () => {
+            const model = new TaskModel();
+            const view = new TaskView();
+            new TaskController(model, view);
+        });
+    </script>
+</body>
+</html>
